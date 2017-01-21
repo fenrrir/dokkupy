@@ -201,3 +201,6 @@ class ServiceInstance(object):
 
     def clone(self, source):
         self.service.run('clone', source, self.name)
+
+    def destroy(self):
+        self.service.run('destroy', self.name, input=self.name + '\n')
