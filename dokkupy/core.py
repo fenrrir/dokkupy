@@ -1,11 +1,14 @@
+import os
 import subprocess
+
+from git import Repo
 
 
 class CommandError(Exception):
     pass
 
 
-DEBUG = True
+DEBUG = os.environ.get('DOKKUPY_DEBUG', False)
 
 
 class Command(object):
@@ -118,6 +121,28 @@ class App(object):
 
     def restart(self):
         self.dokku.run('ps:restart', self.name)
+
+    def deploy(self, project_path=None, remote_name='dokkupy', current_branch=False, remote_url=None):
+        if not project_path:
+            project_path = os.getcwd()
+
+        repo = Repo(project_path)
+
+        if not remote_url:
+            remote_url = self.dokku.hostname + ':' + self.name
+        if remote_name not in [r.name for r in repo.remotes]:
+            remote = repo.create_remote(remote_name, remote_url)
+        else:
+            remote = repo.remote(remote_name)
+            remote.set_url(remote_url)
+
+        if not current_branch:
+            refspec = 'master:master'
+        else:
+            branch = repo.active_branch
+            refspec = '{}:master'.format(branch)
+
+        remote.push(refspec)
 
 
 class Service(object):
