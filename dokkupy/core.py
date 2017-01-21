@@ -173,20 +173,27 @@ class ServiceInstance(object):
     def __bool__(self):
         return self.__nonzero__()
 
+    def _infolist(self):
+        output = self.service.run('list').splitlines()[1:]
+        empty = [None, None, None, None, None]
+
+        if not output:
+            return empty
+
+        for line in output:
+            line = line.split()
+            name = line[0]
+            if name == self.name:
+                return line
+
+        return empty
+
     @property
     def is_running(self):
         try:
-            output = self.service.run('list').splitlines()[1:]
-            if not output:
-                return False
-
-            for line in output:
-                line = line.split()
-                name = line[0]
-                status = line[2]
-                if name == self.name:
-                    return status == 'running'
-            return False
+            info = self._infolist()
+            status = info[2]
+            return status == 'running'
         except CommandError:
             return False
 
@@ -204,3 +211,24 @@ class ServiceInstance(object):
 
     def destroy(self):
         self.service.run('destroy', self.name, input=self.name + '\n')
+
+    def link(self, app):
+        self.service.run('link', self.name, app.name)
+
+    def unlink(self, app):
+        self.service.run('unlink', self.name, app.name)
+
+    @property
+    def links(self):
+        output = self.service.run('info', self.name).splitlines()[1:]
+
+        if not output:
+            return []
+
+        for line in output:
+            line = line.split(':')
+            name = line[0].strip()
+            if name == 'Links':
+                apps = line[1].split()
+                return [App(name, self.service.dokku) for name in apps]
+        return []
