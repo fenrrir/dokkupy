@@ -120,10 +120,8 @@ class Dokku(Command):
         app.deploy(config.get('path'))
 
         if config.get('scale'):
-            scale_opts = {}
-            for opts in config['scale']:
-                scale_opts[opts['name']] = opts['count']
-            app.scale(**scale_opts)
+            scale = config.get('scale')
+            app.scale(**scale)
 
     def remove(self, name, config):
         app = self[name]

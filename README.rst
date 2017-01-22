@@ -9,10 +9,39 @@ Requires ::
 
     'GitPython==2.1.0'
 
+Debugging ::
+
+    export DOKKUPY_DEBUG=1
+
 Features
 --------
 - API for apps
+    - list
+    - create
+    - exists
+    - is_running
+    - start
+    - stop
+    - restart
+    - destroy
+    - get_config
+    - set_config
+    - del_config
+    - scale
+
 - API for addons/plugins
+    - list
+    - create
+    - exists
+    - is_running
+    - start
+    - stop
+    - restart
+    - clone
+    - destroy
+    - link
+    - unlink
+    - links
 
 
 Examples
@@ -32,5 +61,7 @@ Creating a postgres database ::
     postgres = dokku.get_service('postgres')
     if postgres:  # is available?
         mydb = postgres['mydb']
+        if mydb: # database exists
+            mydb.destroy()
         mydb.create()
         mydb.link(first_app)
