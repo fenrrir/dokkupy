@@ -65,3 +65,24 @@ Creating a postgres database ::
             mydb.destroy()
         mydb.create()
         mydb.link(first_app)
+
+
+
+Deploying with cli ::
+
+    $ cat config-example.json
+    {
+      "services": [
+        {
+          "name": "postgres",
+          "destroy_on_remove": true
+        }
+      ],
+      "environ": {
+        "key": "secret"
+      },
+      "scale": {
+        "worker": 1
+    }
+    $ cd <project path>
+    $ dokkupycli --project-name mydeploy --config config-example.json --address dokku@mydokkuhost.net create

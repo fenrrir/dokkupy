@@ -1,0 +1,14 @@
+{
+  "services": [
+    {
+      "name": "postgres",
+      "destroy_on_remove": true
+    }
+  ],
+  "environ": {
+    "key": "secret"
+  },
+  "scale": {
+    "worker": 1
+  }
+}
