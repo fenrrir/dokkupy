@@ -262,3 +262,6 @@ class ServiceInstance(object):
                 apps = line[1].split()
                 return [App(name, self.service.dokku) for name in apps if name != '-']
         return []
+
+    def create(self):
+        self.service.run('create', self.name)
