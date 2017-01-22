@@ -16,7 +16,7 @@ setup(
     long_description=long_description,
     url='https://github.com/fenrrir/dokkupy',
     author=u'Rodrigo Pinheiro Marques de Araújo',
-    author_email='rodrigo.araujo@ifpb.edu.br',
+    author_email='fenrrir@gmail.com',
     license='MIT',
 
     classifiers=[
