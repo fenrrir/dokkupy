@@ -235,6 +235,11 @@ class ServiceInstance(object):
         self.service.run('clone', source, self.name)
 
     def destroy(self):
+        if self.is_running:
+            self.stop()
+        for app in self.links:
+            if app:
+                self.unlink(app)
         self.service.run('destroy', self.name, input=self.name + '\n')
 
     def link(self, app):
