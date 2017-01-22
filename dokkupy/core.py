@@ -18,6 +18,7 @@
 # THE SOFTWARE OR THE USE OR OTHER
 
 import os
+import json
 import subprocess
 
 from git import Repo
@@ -82,6 +83,71 @@ class Dokku(Command):
         if not service:
             raise CommandError('Service not found')
         return service
+
+    def deploy(self, name, config):
+        app = self[name]
+
+        if not app:
+            app.create()
+
+        for opts in config.get('services', []):
+            service_factory = self.get_service(opts['name'])
+            instance = service_factory[name + opts.get('suffix', '')]
+
+            if instance:
+                if opts.get('always_create'):
+                    instance.destroy()
+
+                    if opts.get('clone'):
+                        instance.clone(opts['clone'])
+                    else:
+                        instance.create()
+
+                    instance.link(app)
+
+                if not instance.is_running:
+                    instance.start()
+            else:
+                instance.create()
+                instance.link(app)
+
+        if config.get('environ'):
+            for key, value in config['environ'].items():
+                app.set_config(key, value)
+
+        app.deploy(config.get('path'))
+
+    def remove(self, name, config):
+        app = self[name]
+
+        if app.is_running:
+            app.stop()
+
+        for opts in config.get('services', []):
+            service_factory = self.get_service(opts['name'])
+            instance = service_factory[name + opts.get('suffix', '')]
+
+            if instance:
+                if opts.get('destroy_on_remove'):
+                    instance.destroy()
+
+                if opts.get('stop_on_remove'):
+                    instance.stop()
+
+        if app:
+            app.destroy()
+
+    def deploy_from_file(self, name, filename):
+        data = self._load_json(filename)
+        self.deploy(name, data)
+
+    def remove_from_file(self, name, filename):
+        data = self._load_json(filename)
+        self.remove(name, data)
+
+    def _load_json(self, filename):
+        with file(filename) as f:
+            return json.load(f)
 
 
 class App(object):
