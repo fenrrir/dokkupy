@@ -119,6 +119,12 @@ class Dokku(Command):
 
         app.deploy(config.get('path'))
 
+        if config.get('scale'):
+            scale_opts = {}
+            for opts in config['scale']:
+                scale_opts[opts['name']] = opts['count']
+            app.scale(**scale_opts)
+
     def remove(self, name, config):
         app = self[name]
 
@@ -208,6 +214,10 @@ class App(object):
 
     def restart(self):
         self.dokku.run('ps:restart', self.name)
+
+    def scale(self, **opts):
+        opts = ['{}={}'.format(k, v) for k,v in opts.items()]
+        self.dokku.run('ps:scale', self.name, *opts)
 
     def deploy(self, project_path=None, remote_name='dokkupy', current_branch=False, remote_url=None):
         if not project_path:
