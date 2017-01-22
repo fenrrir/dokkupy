@@ -260,5 +260,5 @@ class ServiceInstance(object):
             name = line[0].strip()
             if name == 'Links':
                 apps = line[1].split()
-                return [App(name, self.service.dokku) for name in apps]
+                return [App(name, self.service.dokku) for name in apps if name != '-']
         return []
