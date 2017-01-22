@@ -62,11 +62,13 @@ class Command(object):
 
 
 class Dokku(Command):
-    def __init__(self, hostname):
-        super(Dokku, self).__init__('ssh',
-                                    '-t',
-                                    hostname)
-        self.hostname = hostname
+    def __init__(self, hostname=None):
+        if hostname:
+            cmd = ['ssh', '-t', hostname]
+            self.hostname = hostname
+        else:
+            cmd = ['dokku']
+        super(Dokku, self).__init__(*cmd)
 
     def _list(self):
         output = self.run('apps')
