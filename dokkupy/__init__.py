@@ -18,4 +18,4 @@
 # THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-from core import Dokku, App, CommandError, Service
+from dokkupy.core import Dokku, App, CommandError, Service
