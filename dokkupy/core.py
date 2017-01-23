@@ -105,23 +105,33 @@ class Dokku(Command):
                     else:
                         instance.create()
 
+                if app.name not in [a.name for a in instance.links]:
                     instance.link(app)
 
                 if not instance.is_running:
                     instance.start()
             else:
-                instance.create()
-                instance.link(app)
+                if opts.get('clone'):
+                    instance.clone(opts['clone'])
+                else:
+                    instance.create()
+
+                if app.name not in [a.name for a in instance.links]:
+                    instance.link(app)
 
         if config.get('environ'):
             for key, value in config['environ'].items():
                 app.set_config(key, value)
 
-        app.deploy(config.get('path'))
-
         if config.get('scale'):
             scale = config.get('scale')
-            app.scale(**scale)
+            if scale != app.get_scale():
+                app.set_scale(**scale)
+
+        app.deploy(project_path=config.get('path'), current_branch=config.get('current_branch', False))
+
+        for command in config.get('commands', []):
+            app.run(command)
 
     def remove(self, name, config):
         app = self[name]
@@ -213,9 +223,24 @@ class App(object):
     def restart(self):
         self.dokku.run('ps:restart', self.name)
 
-    def scale(self, **opts):
+    def set_scale(self, **opts):
         opts = ['{}={}'.format(k, v) for k,v in opts.items()]
         self.dokku.run('ps:scale', self.name, *opts)
+
+    def get_scale(self):
+        output = self.dokku.run('ps:scale', self.name).splitlines()[3:]
+        result = {}
+        for line in output:
+            try:
+                proc, count = line[len('-----> '):].split()
+                count = int(count)
+                result[proc] = count
+            except ValueError:
+                pass
+        return result
+
+    def run(self, cmd):
+        return self.dokku.run('run', self.name, *cmd.split())
 
     def deploy(self, project_path=None, remote_name='dokkupy', current_branch=False, remote_url=None):
         if not project_path:
@@ -334,14 +359,18 @@ class ServiceInstance(object):
             self.stop()
         for app in self.links:
             if app:
-                self.unlink(app)
+                self.unlink(app, force=True)
         self.service.run('destroy', self.name, input=self.name + '\n')
 
     def link(self, app):
         self.service.run('link', self.name, app.name)
 
-    def unlink(self, app):
-        self.service.run('unlink', self.name, app.name)
+    def unlink(self, app, force=False):
+        try:
+            self.service.run('unlink', self.name, app.name)
+        except CommandError as error:
+            if not force:
+                raise error
 
     @property
     def links(self):
