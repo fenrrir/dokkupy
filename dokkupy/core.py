@@ -18,10 +18,11 @@
 # THE SOFTWARE OR THE USE OR OTHER
 
 import os
+import sys
 import json
 import subprocess
 
-from git import Repo
+from git import Repo, RemoteProgress
 
 
 class CommandError(Exception):
@@ -29,6 +30,19 @@ class CommandError(Exception):
 
 
 DEBUG = os.environ.get('DOKKUPY_DEBUG', False)
+
+
+class GitProgress(RemoteProgress):
+    def line_dropped(self, line):
+        sys.stdout.write(line.strip())
+
+    def update(self, *args):
+        sys.stdout.write(self._cur_line.strip())
+
+    def new_message_handler(self):
+        def handler(line):
+            sys.stdout.write(line.strip())
+        return handler
 
 
 class Command(object):
@@ -53,6 +67,8 @@ class Command(object):
         stdout, stderr = p.communicate(input)
         if p.returncode:
             if stderr:
+                if DEBUG:
+                    print(stdout)
                 raise CommandError('Error: {}'.format(stderr))
             raise CommandError('Error: {}'.format(p.returncode))
         return stdout
@@ -262,7 +278,15 @@ class App(object):
             branch = repo.active_branch
             refspec = '{}:master'.format(branch)
 
-        remote.push(refspec)
+        if DEBUG:
+            progress = GitProgress()
+        else:
+            progress = None
+
+        if DEBUG:
+            print('deploying...')
+
+        remote.push(refspec, progress=progress)
 
 
 class Service(object):
