@@ -304,7 +304,9 @@ class App(object):
         if DEBUG:
             print('deploying...')
 
-        remote.push(refspec, progress=progress)
+        info = remote.push(refspec, progress=progress)
+        if info and 'remote rejected' in info[0].summary:
+            raise CommandError('failed to push')
 
 
 class Service(object):
