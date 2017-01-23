@@ -25,6 +25,9 @@ import subprocess
 from git import Repo, RemoteProgress
 
 
+PY3 = sys.version_info.major == 3
+
+
 class CommandError(Exception):
     pass
 
@@ -57,7 +60,12 @@ class Command(object):
             print(cmd)
 
         input = kwargs.get('input')
+
+        if input and PY3:
+            input = input.encode(sys.getdefaultencoding())
+
         stdin = subprocess.PIPE if input else None
+
         p = subprocess.Popen(cmd,
                              stdin=stdin,
                              stdout=subprocess.PIPE,
@@ -71,6 +79,9 @@ class Command(object):
                     print(stdout)
                 raise CommandError('Error: {}'.format(stderr))
             raise CommandError('Error: {}'.format(p.returncode))
+
+        if PY3:
+            stdout = stdout.decode(sys.getdefaultencoding())
         return stdout
 
     def get_command(self, *extra_params):
@@ -178,7 +189,7 @@ class Dokku(Command):
         self.remove(name, data)
 
     def _load_json(self, filename):
-        with file(filename) as f:
+        with open(filename) as f:
             return json.load(f)
 
 
