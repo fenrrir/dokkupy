@@ -98,7 +98,7 @@ class Command(object):
 class Dokku(Command):
     def __init__(self, hostname=None):
         if hostname:
-            cmd = ['ssh', '-t', hostname]
+            cmd = ['ssh', '-t', '-t', hostname]
             self.hostname = hostname
         else:
             cmd = ['dokku']
