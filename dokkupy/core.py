@@ -37,15 +37,22 @@ DEBUG = os.environ.get('DOKKUPY_DEBUG', False)
 
 class GitProgress(RemoteProgress):
     def line_dropped(self, line):
-        sys.stdout.write(line.strip())
+        self.log(line)
 
     def update(self, *args):
-        sys.stdout.write(self._cur_line.strip())
+        self.log(self._cur_line)
 
     def new_message_handler(self):
         def handler(line):
-            sys.stdout.write(line.strip())
+            self.log(line)
+
+            if 'failed to push' in line:
+                raise CommandError('failed to push')
+
         return handler
+
+    def log(self, line):
+        sys.stdout.write(line)
 
 
 class Command(object):
