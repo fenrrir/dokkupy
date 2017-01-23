@@ -181,7 +181,7 @@ class Dokku(Command):
                 if opts.get('destroy_on_remove'):
                     instance.destroy()
 
-                if opts.get('stop_on_remove'):
+                if instance.is_running and opts.get('stop_on_remove'):
                     instance.stop()
 
         if app:
