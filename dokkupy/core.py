@@ -123,8 +123,10 @@ class Dokku(Command):
     def deploy(self, name, config):
         app = self[name]
 
-        if not app:
-            app.create()
+        if app:
+            app.destroy()
+
+        app.create()
 
         for opts in config.get('services', []):
             service_factory = self.get_service(opts['name'])
