@@ -295,8 +295,12 @@ class App(object):
         if not current_branch:
             refspec = 'master:master'
         else:
-            branch = repo.active_branch
-            refspec = '{}:master'.format(branch)
+            try:
+                branch = repo.active_branch
+                refspec = '{}:master'.format(branch)
+            except TypeError:
+                #  HEAD is a detached symbolic reference
+                refspec = '{}:refs/heads/master'.format(repo.head.commit.hexsha)
 
         if DEBUG:
             progress = GitProgress()
