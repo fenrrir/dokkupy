@@ -3,7 +3,7 @@ dokkupy - Python API and script for dokku
 
 Install ::
 
-    pip install -e git+https://github.com/fenrrir/dokkupy.git
+    pip install git+https://github.com/fenrrir/dokkupy.git
 
 Requires ::
 
