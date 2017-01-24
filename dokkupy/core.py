@@ -157,7 +157,10 @@ class Dokku(Command):
 
         if config.get('environ'):
             for key, value in config['environ'].items():
-                app.set_config(key, value)
+                if value:
+                    app.set_config(key, value)
+                elif os.environ.get(key):
+                    app.set_config(key, os.environ[key])
 
         if config.get('scale'):
             scale = config.get('scale')
