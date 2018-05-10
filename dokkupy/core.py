@@ -105,7 +105,7 @@ class Dokku(Command):
         super(Dokku, self).__init__(*cmd)
 
     def _list(self):
-        output = self.run('apps')
+        output = self.run('apps:list')
         return output.splitlines()[1:]
 
     def __getitem__(self, app):
@@ -280,10 +280,8 @@ class App(object):
     @property
     def is_running(self):
         try:
-            output = self.dokku.run('ps', self.name)
-            if not output:
-                return False
-            return True
+            output = self.dokku.run('ps:report', self.name, '--running')
+            return 'true' in output
         except CommandError:
             return False
 
