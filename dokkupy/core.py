@@ -169,6 +169,10 @@ class Dokku(Command):
 
         app.deploy(project_path=config.get('path'), current_branch=config.get('current_branch', False))
 
+        generate_cert = config.get('generate_cert', False)
+        if generate_cert:
+            app.generate_certs(**config.get('cert'))
+
         for command in config.get('commands', []):
             app.run(command)
 
@@ -204,6 +208,12 @@ class Dokku(Command):
         with open(filename) as f:
             return json.load(f)
 
+    @property
+    def hostname_only(self):
+        if '@' in self.hostname:
+            return self.hostname.split('@')[1]
+        return self.hostname
+
 
 class App(object):
     def __init__(self, name, dokku):
@@ -236,6 +246,30 @@ class App(object):
 
     def destroy(self):
         self.dokku.run('apps:destroy', self.name, input=self.name + '\n')
+
+    def generate_certs(self, country, state, city, company,
+                       section, email, password, opt_company):
+        domain = '{}.{}'.format(self.name, self.dokku.hostname_only)
+        inputs = [country,
+                  state,
+                  city,
+                  company,
+                  section,
+                  domain,
+                  email,
+                  password,
+                  opt_company
+        ]
+        inputs = ''.join([i+'\n' for i in inputs])
+        self.dokku.run('certs:generate', self.name, domain, input=inputs)
+
+    @property
+    def has_cert(self):
+        output = self.dokku.run('certs:report', self.name)
+        return 'Ssl enabled:         true' in output
+
+    def remove_cert(self):
+        self.dokku.run('certs:remove', self.name)
 
     def __nonzero__(self):
         return bool([app for app in list(self.dokku) if app.name == self.name])
