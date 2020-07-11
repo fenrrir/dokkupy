@@ -120,13 +120,14 @@ class Dokku(Command):
             raise CommandError('Service not found')
         return service
 
-    def deploy(self, name, config):
+    def deploy(self, name, config, destroy=True):
         app = self[name]
 
         if app:
-            app.destroy()
-
-        app.create()
+            if destroy:
+                app.destroy()
+        else:
+            app.create()
 
         for opts in config.get('services', []):
             service_factory = self.get_service(opts['name'])
@@ -196,9 +197,9 @@ class Dokku(Command):
         if app:
             app.destroy()
 
-    def deploy_from_file(self, name, filename):
+    def deploy_from_file(self, name, filename, destroy=True):
         data = self._load_json(filename)
-        self.deploy(name, data)
+        self.deploy(name, data, destroy)
 
     def remove_from_file(self, name, filename):
         data = self._load_json(filename)

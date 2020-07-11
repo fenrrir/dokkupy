@@ -26,13 +26,21 @@ def main():
     parser.add_argument('--project-name', required=True, help='project name')
     parser.add_argument('--address', required=True, help='address of dokku instance')
     parser.add_argument('--config', required=True, help='config file')
+    parser.add_argument(
+        '--destroy-app',
+        help='config file',
+        action='store_true'
+    )
     parser.add_argument('command', choices=['deploy', 'remove'])
 
     args = parser.parse_args()
 
     dokku = dokkupy.Dokku(args.address)
     if args.command == 'deploy':
-        dokku.deploy_from_file(args.project_name, args.config)
+        dokku.deploy_from_file(
+            args.project_name,
+            args.config,
+            destroy=args.destroy_app)
     else:
         dokku.remove_from_file(args.project_name, args.config)
 
