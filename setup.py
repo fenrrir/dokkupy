@@ -32,5 +32,5 @@ setup(
     keywords='python dokku',
     packages=['dokkupy'],
     scripts=['dokkupycli'],
-    install_requires=['GitPython==2.1.0'],
+    install_requires=['GitPython==3.1.3'],
 )
