@@ -28,6 +28,17 @@ from git import Repo, RemoteProgress
 PY3 = sys.version_info.major == 3
 
 
+def safe_log(command):
+    result = []
+    words = ['password', 'key', 'secret']
+    for part in command:
+        mask = any(map(lambda word: word in part.lower(), words))
+        if mask:
+            part = '******'
+        result.append(part)
+    return result
+
+
 class CommandError(Exception):
     pass
 
@@ -64,7 +75,7 @@ class Command(object):
     def run(self, *params, **kwargs):
         cmd = self.get_command(*params)
         if DEBUG:
-            print(cmd)
+            print(' '.join(safe_log(cmd)))
 
         input = kwargs.get('input')
 
