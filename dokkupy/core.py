@@ -168,11 +168,10 @@ class Dokku(Command):
                     instance.link(app)
 
         if config.get('environ'):
+            params = {}
             for key, value in config['environ'].items():
-                if value:
-                    app.set_config(key, value)
-                elif os.environ.get(key):
-                    app.set_config(key, os.environ[key])
+                params[key] = value if value else os.environ[key]
+            app.set_config(params)
 
         if config.get('scale'):
             scale = config.get('scale')
@@ -249,9 +248,9 @@ class App(object):
         except CommandError:
             return {}
 
-    def set_config(self, key, value):
-        config = '{key}={value}'.format(key=key, value=value)
-        self.dokku.run('config:set', self.name, config)
+    def set_config(self, params):
+        configs = [f'{key}={value}' for key, value in params.items()]
+        self.dokku.run('config:set', self.name, *configs)
 
     def del_config(self, key):
         self.dokku.run('config:unset', self.name, key)
