@@ -184,6 +184,14 @@ class Dokku(Command):
         if generate_cert:
             app.generate_certs(**config.get('cert'))
 
+        disable_proxy = config.get('disable_proxy', False)
+        if disable_proxy:
+            app.disable_proxy()
+
+        enable_letsencrypt = config.get('letsencrypt', False)
+        if enable_letsencrypt:
+            app.enable_letsencrypt()
+
         for command in config.get('commands', []):
             app.run(command)
 
@@ -254,6 +262,12 @@ class App(object):
 
     def del_config(self, key):
         self.dokku.run('config:unset', self.name, key)
+
+    def disable_proxy(self):
+        self.dokku.run('proxy:disable', self.name)
+
+    def enable_letsencrypt(self):
+        self.dokku.run('letsencrypt', self.name)
 
     def destroy(self):
         self.dokku.run('apps:destroy', self.name, input=self.name + '\n')
