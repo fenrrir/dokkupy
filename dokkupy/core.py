@@ -134,10 +134,10 @@ class Dokku(Command):
     def deploy(self, name, config, destroy=True):
         app = self[name]
 
-        if app:
-            if destroy:
-                app.destroy()
-        else:
+        if app and destroy:
+            app.destroy()
+
+        if not app:
             app.create()
 
         for opts in config.get('services', []):
