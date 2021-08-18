@@ -11,7 +11,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='dokkupy',
-    version='0.2.1',
+    version='0.2.2',
     description='Python API and script for dokku',
     long_description=long_description,
     url='https://github.com/fenrrir/dokkupy',
@@ -28,6 +28,10 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ],
     keywords='python dokku',
     packages=['dokkupy'],

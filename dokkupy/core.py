@@ -428,27 +428,11 @@ class ServiceInstance(object):
     def __bool__(self):
         return self.__nonzero__()
 
-    def _infolist(self):
-        output = self.service.run('list').splitlines()[1:]
-        empty = [None, None, None, None, None]
-
-        if not output:
-            return empty
-
-        for line in output:
-            line = line.split()
-            name = line[0]
-            if name == self.name:
-                return line
-
-        return empty
-
     @property
     def is_running(self):
         try:
-            info = self._infolist()
-            status = info[2]
-            return status == 'running'
+            output = self.service.run('info', self.name, '--status')
+            return 'running' in output
         except CommandError:
             return False
 
