@@ -431,8 +431,8 @@ class ServiceInstance(object):
     @property
     def is_running(self):
         try:
-            output = self.service.run('info', self.name, '--running')
-            return 'running' == output
+            output = self.service.run('info', self.name, '--status')
+            return 'running' in output
         except CommandError:
             return False
 
