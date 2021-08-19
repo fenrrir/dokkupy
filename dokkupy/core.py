@@ -267,7 +267,7 @@ class App(object):
         self.dokku.run('proxy:disable', self.name)
 
     def enable_letsencrypt(self):
-        self.dokku.run('letsencrypt', self.name)
+        self.dokku.run('letsencrypt:enable', self.name)
 
     def destroy(self):
         self.dokku.run('apps:destroy', self.name, input=self.name + '\n')
