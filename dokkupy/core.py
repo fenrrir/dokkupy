@@ -16,7 +16,7 @@
 # OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
 # AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 # THE SOFTWARE OR THE USE OR OTHER
-
+import datetime
 import os
 import sys
 import json
@@ -75,7 +75,8 @@ class Command(object):
     def run(self, *params, **kwargs):
         cmd = self.get_command(*params)
         if DEBUG:
-            print(' '.join(safe_log(cmd)))
+            timestamp = str(datetime.datetime.now())
+            print(timestamp, ' '.join(safe_log(cmd)))
 
         input = kwargs.get('input')
 
