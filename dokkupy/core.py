@@ -21,6 +21,7 @@ import os
 import sys
 import json
 import subprocess
+import time
 
 from git import Repo, RemoteProgress
 
@@ -76,7 +77,7 @@ class Command(object):
         cmd = self.get_command(*params)
         if DEBUG:
             timestamp = str(datetime.datetime.now())
-            print(timestamp, ' '.join(safe_log(cmd)))
+            print('[', timestamp, '] ', ' '.join(safe_log(cmd)), end=" ")
 
         input = kwargs.get('input')
 
@@ -84,7 +85,7 @@ class Command(object):
             input = input.encode(sys.getdefaultencoding())
 
         stdin = subprocess.PIPE if input else None
-
+        start = time.time()
         p = subprocess.Popen(cmd,
                              stdin=stdin,
                              stdout=subprocess.PIPE,
@@ -92,6 +93,15 @@ class Command(object):
                              **self.popen_kwargs)
 
         stdout, stderr = p.communicate(input)
+        end = time.time()
+        if DEBUG:
+            elapsed = end - start
+            print(
+                "[{elapsed:.2} second{plural}]".format(
+                    elapsed=elapsed,
+                    plural=("s" if elapsed != 1.0 else ""),
+                )
+            )
         if p.returncode:
             if stderr:
                 if DEBUG:
