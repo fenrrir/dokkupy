@@ -96,12 +96,7 @@ class Command(object):
         end = time.time()
         if DEBUG:
             elapsed = end - start
-            print(
-                "[{elapsed:.2} second{plural}]".format(
-                    elapsed=elapsed,
-                    plural=("s" if elapsed != 1.0 else ""),
-                )
-            )
+            print("[{elapsed:.2} second(s)]".format(elapsed=elapsed))
         if p.returncode:
             if stderr:
                 if DEBUG:
