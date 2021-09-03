@@ -16,11 +16,12 @@
 # OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
 # AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 # THE SOFTWARE OR THE USE OR OTHER
-
+import datetime
 import os
 import sys
 import json
 import subprocess
+import time
 
 from git import Repo, RemoteProgress
 
@@ -75,7 +76,8 @@ class Command(object):
     def run(self, *params, **kwargs):
         cmd = self.get_command(*params)
         if DEBUG:
-            print(' '.join(safe_log(cmd)))
+            timestamp = str(datetime.datetime.now())
+            print('[', timestamp, '] ', ' '.join(safe_log(cmd)), end=" ")
 
         input = kwargs.get('input')
 
@@ -83,7 +85,7 @@ class Command(object):
             input = input.encode(sys.getdefaultencoding())
 
         stdin = subprocess.PIPE if input else None
-
+        start = time.time()
         p = subprocess.Popen(cmd,
                              stdin=stdin,
                              stdout=subprocess.PIPE,
@@ -91,6 +93,10 @@ class Command(object):
                              **self.popen_kwargs)
 
         stdout, stderr = p.communicate(input)
+        end = time.time()
+        if DEBUG:
+            elapsed = end - start
+            print("[{elapsed:.2} second(s)]".format(elapsed=elapsed))
         if p.returncode:
             if stderr:
                 if DEBUG:
