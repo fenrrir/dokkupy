@@ -131,8 +131,8 @@ class Dokku(Command):
     def __iter__(self):
         return iter(App(app, self) for app in iter(self._list()))
 
-    def get_service(self, name):
-        service = Service(name, self)
+    def get_service(self, name, params):
+        service = Service(name, self, params=params)
         if not service:
             raise CommandError('Service not found')
         return service
@@ -147,7 +147,7 @@ class Dokku(Command):
             app.create()
 
         for opts in config.get('services', []):
-            service_factory = self.get_service(opts['name'])
+            service_factory = self.get_service(opts['name'], opts.get('params', {}))
             instance = service_factory[name + opts.get('suffix', '')]
 
             if instance:
@@ -208,7 +208,7 @@ class Dokku(Command):
             app.stop()
 
         for opts in config.get('services', []):
-            service_factory = self.get_service(opts['name'])
+            service_factory = self.get_service(opts['name'], opts.get('params', {}))
             instance = service_factory[name + opts.get('suffix', '')]
 
             if instance:
@@ -382,12 +382,17 @@ class App(object):
 
 
 class Service(object):
-    def __init__(self, name, dokku):
+    def __init__(self, name, dokku, params):
         self.name = name
         self.dokku = dokku
+        self.params = params
 
     def _subcommand(self, subcmd):
-        return '{name}:{subcmd}'.format(name=self.name, subcmd=subcmd)
+        return '{name}:{subcmd}'.format(
+            name=self.name,
+            subcmd=subcmd,
+        )
+
 
     def __repr__(self):
         return 'Service("{self.name})"'.format(self=self)
@@ -403,7 +408,12 @@ class Service(object):
         return self.__nonzero__()
 
     def run(self, *args, **kwargs):
-        return self.dokku.run(self._subcommand(args[0]), *args[1:], **kwargs)
+        params = self.params.get(args[0], [])
+        return self.dokku.run(
+            self._subcommand(args[0]),
+            *args[1:] + tuple(params),
+            **kwargs
+        )
 
     def __getitem__(self, instance_name):
         return ServiceInstance(instance_name, service=self)
