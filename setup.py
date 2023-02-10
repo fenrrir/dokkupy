@@ -11,7 +11,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='dokkupy',
-    version='0.3.0',
+    version='0.4.0',
     description='Python API and script for dokku',
     long_description=long_description,
     url='https://github.com/fenrrir/dokkupy',
@@ -36,5 +36,5 @@ setup(
     keywords='python dokku',
     packages=['dokkupy'],
     scripts=['dokkupycli'],
-    install_requires=['GitPython>=3.1.3'],
+    install_requires=['GitPython>=3.1.30'],
 )
